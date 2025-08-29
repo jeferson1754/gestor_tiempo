@@ -60,7 +60,13 @@ class Producto
                          TIMESTAMPDIFF(MONTH, fecha_inicio, fecha_fin) as diferencia_meses,
                          created_at, updated_at
                   FROM " . $this->table_name . " 
-                  ORDER BY created_at DESC";
+                  ORDER BY 
+                    CASE 
+                        WHEN fecha_fin IS NULL OR fecha_fin = '0000-00-00' THEN 0 
+                        ELSE 1 
+                    END ASC,
+                    fecha_inicio DESC;
+                    ";
 
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
