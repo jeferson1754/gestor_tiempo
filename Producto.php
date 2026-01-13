@@ -55,18 +55,22 @@ class Producto
     // Leer todos los productos
     public function read()
     {
-        $query = "SELECT id, nombre, tipo, descripcion, fecha_inicio, fecha_fin, 
-                         DATEDIFF(fecha_fin, fecha_inicio) as diferencia_dias,
-                         TIMESTAMPDIFF(MONTH, fecha_inicio, fecha_fin) as diferencia_meses,
-                         created_at, updated_at
-                  FROM " . $this->table_name . " 
-                  ORDER BY 
-                    CASE 
-                        WHEN fecha_fin IS NULL OR fecha_fin = '0000-00-00' THEN 0 
-                        ELSE 1 
-                    END ASC,
-                    fecha_inicio DESC;
-                    ";
+        $query = "SELECT 
+                p1.id, p1.nombre, p1.tipo, p1.descripcion, p1.fecha_inicio, p1.fecha_fin, 
+                created_at, updated_at,
+                /* Subconsulta para obtener el promedio de duración por nombre */
+                (SELECT AVG(DATEDIFF(p2.fecha_fin, p2.fecha_inicio)) 
+                 FROM " . $this->table_name . " p2 
+                 WHERE p2.nombre = p1.nombre 
+                 AND p2.fecha_fin IS NOT NULL 
+                 AND p2.fecha_fin <> '0000-00-00') as promedio_historico
+              FROM " . $this->table_name . " p1
+              ORDER BY 
+                CASE 
+                    WHEN p1.fecha_fin IS NULL OR p1.fecha_fin = '0000-00-00' THEN 0 
+                    ELSE 1 
+                END ASC,
+                p1.fecha_inicio DESC";
 
         $stmt = $this->conn->prepare($query);
         $stmt->execute();

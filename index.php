@@ -127,7 +127,8 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
                 width: 100%;
             }
 
-            .btn-group .btn, .btn-primary {
+            .btn-group .btn,
+            .btn-primary {
                 width: 100%;
                 margin-bottom: 0.2rem;
             }
@@ -197,10 +198,11 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
                                         <?php while ($row = $stmt->fetch(PDO::FETCH_ASSOC)):
                                             $diferencias = calcularDiferenciasDetalladas($row['fecha_inicio'], $row['fecha_fin']);
 
-                                            $fecha_inicio = new DateTime($row['fecha_inicio']);
-                                            $fecha_fin = new DateTime($row['fecha_fin']);
+                                            // Si no hay promedio histórico (primer registro), usamos 30 por defecto
+                                            $promedio = (!empty($row['promedio_historico'])) ? (int)$row['promedio_historico'] : 30;
 
-                                            $resultado = calcularDuracionUso($fecha_inicio, $fecha_fin);
+                                            // Calculamos el estado usando el promedio dinámico
+                                            $resultado = calcularDuracionUso($row['fecha_inicio'], $row['fecha_fin'], $promedio);
                                         ?>
                                             <tr>
                                                 <td data-label="ID"><?php echo $row['id']; ?></td>
@@ -221,24 +223,39 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
                                                 </td>
 
                                                 <td class="diff">
-                                                    <small class="text-muted">
-                                                        <strong><?php echo htmlspecialchars($diferencias['detalle_completo']); ?></strong><br>
-                                                        <?php
-                                                        // Determinar el color según el estado
-                                                        $estado = $resultado['estado'] ?? '';
-                                                        $color = 'badge-estado-secondary'; // default gray
+                                                    <?php
+                                                    // Verificamos si la fecha_fin está vacía o es "0000-00-00"
+                                                    if (empty($row['fecha_fin']) || $row['fecha_fin'] === '0000-00-00'):
+                                                    ?>
+                                                        <small class="text-muted">
+                                                            <strong><?php echo htmlspecialchars($diferencias['detalle_completo']); ?></strong><br>
 
-                                                        if (stripos($estado, 'Vencido') !== false) {
-                                                            $color = 'badge-estado-rojo'; // rojo
-                                                        } elseif (stripos($estado, 'Por vencer') !== false) {
-                                                            $color = 'badge-estado-naranja'; // naranja
-                                                        } elseif (stripos($estado, 'Aún quedan') !== false) {
-                                                            $color = 'badge-estado-verde'; // verde
-                                                        }
+                                                            <?php
+                                                            // Calculamos el promedio dinámico basado en el historial (de la consulta SQL modificada)
+                                                            // Si no hay historial, usamos 30 días como base
+                                                            $promedio = (!empty($row['promedio_historico'])) ? (int)$row['promedio_historico'] : 30;
 
-                                                        echo '<span class="badge ' . $color . '"><em>' . htmlspecialchars($estado) . '</em></span>';
-                                                        ?>
-                                                    </small>
+                                                            // Calculamos el estado actual comparando el tiempo transcurrido vs el promedio
+                                                            $resultado = calcularDuracionUso($row['fecha_inicio'], $row['fecha_fin'], $promedio);
+
+                                                            $estado = $resultado['estado'] ?? '';
+                                                            $color = 'badge-estado-secondary';
+
+                                                            if (stripos($estado, 'Vencido') !== false) {
+                                                                $color = 'badge-estado-rojo';
+                                                            } elseif (stripos($estado, 'Por vencer') !== false) {
+                                                                $color = 'badge-estado-naranja';
+                                                            } elseif (stripos($estado, 'Aún quedan') !== false) {
+                                                                $color = 'badge-estado-verde';
+                                                            }
+
+                                                            echo '<span class="badge ' . $color . '"><em>' . htmlspecialchars($estado) . '</em></span>';
+                                                            ?>
+                                                        </small>
+                                                    <?php else: ?>
+                                                        <span class="text-muted small"><i class="fas fa-check-circle"></i> Finalizado</span>
+                                                    <?php endif; ?>
+                                                    
                                                 </td>
 
                                                 <td>
