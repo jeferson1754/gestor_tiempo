@@ -255,7 +255,7 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
                                                     <?php else: ?>
                                                         <span class="text-muted small"><i class="fas fa-check-circle"></i> Finalizado</span>
                                                     <?php endif; ?>
-                                                    
+
                                                 </td>
 
                                                 <td>
@@ -272,6 +272,10 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
                                                             class="btn btn-sm btn-outline-danger" title="Eliminar"
                                                             onclick="return confirm('¿Está seguro de eliminar este elemento?')">
                                                             <i class="fas fa-trash"></i>
+                                                        </a>
+                                                        <a href="analisis.php?nombre=<?php echo urlencode($row['nombre']); ?>"
+                                                            class="btn btn-sm btn-outline-primary" title="Ver Evolución">
+                                                            <i class="fas fa-chart-line"></i>
                                                         </a>
                                                     </div>
                                                 </td>

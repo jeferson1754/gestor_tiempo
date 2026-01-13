@@ -13,6 +13,8 @@ $id = isset($_GET['id']) ? $_GET['id'] : die('ERROR: ID no encontrado.');
 $producto->id = $id;
 
 // Usamos readOneDetail para obtener el producto y el promedio
+// ... (código anterior igual)
+
 if (!$producto->readOneDetail()) {
     die('ERROR: Producto no encontrado.');
 }
@@ -108,7 +110,13 @@ $diferencias = calcularDiferenciasDetalladas($producto->fecha_inicio, $producto-
             color: white;
         }
 
-        
+        .badge-producto {
+            background-color: #28a745 !important;
+        }
+
+        .badge-servicio {
+            background-color: #007bff !important;
+        }
     </style>
 </head>
 
@@ -188,9 +196,8 @@ $diferencias = calcularDiferenciasDetalladas($producto->fecha_inicio, $producto-
                                     <div class="card-body text-center">
                                         <h5 class="card-title">
                                             <i class="fas fa-calculator me-2"></i>
-                                            Cálculo de Tiempo
+                                            Calculo <?php echo (empty($producto->fecha_fin) || $producto->fecha_fin == '0000-00-00') ? 'Tiempo Transcurrido' : 'Duración Total'; ?>
                                         </h5>
-
                                         <div class="mt-4">
                                             <div class="mb-3">
                                                 <h2 class="display-5"> <?php echo htmlspecialchars($diferencias['detalle_completo']); ?></h2>
@@ -204,6 +211,9 @@ $diferencias = calcularDiferenciasDetalladas($producto->fecha_inicio, $producto-
                                                     <p class="mb-0">Años</p>
                                                 </div>
                                             <?php endif; ?>
+
+
+
                                         </div>
 
                                     </div>

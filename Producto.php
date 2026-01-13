@@ -246,6 +246,22 @@ class Producto
         }
         return true;
     }
+
+    public function getEvolutionByName($nombre)
+    {
+        $query = "SELECT fecha_inicio, 
+                     DATEDIFF(fecha_fin, fecha_inicio) as duracion 
+              FROM " . $this->table_name . " 
+              WHERE nombre = :nombre 
+              AND fecha_fin IS NOT NULL 
+              AND fecha_fin <> '0000-00-00'
+              ORDER BY fecha_inicio ASC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':nombre', $nombre);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
 function calcularDiferenciasDetalladas($fecha_inicio, $fecha_fin)
 {

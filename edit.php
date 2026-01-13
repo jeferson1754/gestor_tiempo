@@ -159,8 +159,7 @@ if($_POST) {
                                             Fecha de Fin *
                                         </label>
                                         <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" 
-                                               value="<?php echo $producto->fecha_fin; ?>" 
-                                               required>
+                                               value="<?php echo $producto->fecha_fin; ?>" >
                                     </div>
                                 </div>
                             </div>
